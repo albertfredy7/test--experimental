@@ -4,8 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { scrollToElement } from "@/lib/scroll-utils";
 import { ThemeToggle } from "./ThemeToggle";
-import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
+
 
 export function Navigation() {
   return (
@@ -62,7 +61,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
 
 function MobileNav() {
   const [isOpen, setIsOpen] = React.useState(false);
-  const { theme } = useTheme();
+
 
   const handleLinkClick = (id: string) => {
     setIsOpen(false);

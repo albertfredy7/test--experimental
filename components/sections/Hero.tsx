@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { scrollToElement } from "@/lib/scroll-utils";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { Parallax } from "@/components/ui/parallax";
 
 export function Hero() {
   return (

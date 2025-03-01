@@ -52,7 +52,7 @@ export function FAQ() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  You can customize the theme by editing the globals.css file and the tailwind.config.js file to match your brand's colors and styles.
+                  You can customize the theme by editing the globals.css file and the tailwind.config.js file to match your brand colors and styles.
                 </p>
               </CardContent>
             </Card>
@@ -65,7 +65,7 @@ export function FAQ() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Yes! shadcn/ui is designed to be used alongside other UI libraries, and since it's not a traditional dependency, there are no conflicts.
+                  Yes! shadcn/ui is designed to be used alongside other UI libraries, and since  not a traditional dependency, there are no conflicts.
                 </p>
               </CardContent>
             </Card>

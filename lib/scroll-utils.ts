@@ -31,7 +31,7 @@ export function scrollToElement(elementId: string) {
  * Custom hook to use smooth scroll for components
  */
 export function useSmoothScroll() {
-  const scrollTo = (target: string | HTMLElement, options = {}) => {
+  const scrollTo = (target: string | HTMLElement) => {
     if (typeof target === 'string') {
       scrollToElement(target);
     } else if (target instanceof HTMLElement) {

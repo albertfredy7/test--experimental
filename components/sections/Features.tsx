@@ -1,21 +1,58 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
-import { 
-  FiServer, 
-  FiCircle, 
-  FiMonitor, 
-  FiLayers, 
-  FiGrid, 
-  FiCheckCircle 
+
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef, useEffect, useMemo } from "react";
+import {
+  FiServer,
+  FiCircle,
+  FiMonitor,
+  FiLayers,
+  FiGrid,
+  FiCheckCircle
 } from "react-icons/fi";
 
 // Create a wrapper motion component for the Card
 const MotionCard = motion(Card);
-const MotionDiv = motion.div;
+
+// Function to get row and column for grid position
+const getGridPosition = (index: number) => {
+  // Assuming a 3-column grid (lg:grid-cols-3)
+  const row = Math.floor(index / 3);
+  const col = index % 3;
+  return { row, col };
+};
+
+// Calculate diagonal position (higher value = later in diagonal)
+const getDiagonalOrder = (index: number) => {
+  const { row, col } = getGridPosition(index);
+  return row + col;
+};
+
+// Custom hook to generate the transforms for each card
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useCardTransforms = (scrollYProgress: any, diagonalPosition: number) => {
+  const borderColor = useTransform(
+    scrollYProgress,
+    [0.2 + diagonalPosition * 0.15, 0.7 + diagonalPosition * 0.15], // Much wider gaps requiring more scrolling
+    ["#E5E7EB", "#3366FF"]
+  );
+
+  const iconColor = useTransform(
+    scrollYProgress,
+    [0.2 + diagonalPosition * 0.15, 0.7 + diagonalPosition * 0.15], // Same timing as border colors
+    ["#6B7280", "#3366FF"] // From gray-500 to blue
+  );
+
+  const iconBgColor = useTransform(
+    scrollYProgress,
+    [0.2 + diagonalPosition * 0.15, 0.7 + diagonalPosition * 0.15], // Same timing as border colors
+    ["#F3F4F6", "#EBF5FF"] // From gray-100 to light blue
+  );
+
+  return { borderColor, iconColor, iconBgColor };
+};
 
 export function Features() {
   const sectionRef = useRef(null);
@@ -40,50 +77,9 @@ export function Features() {
   });
 
   // Create an array of card indices to map over
-  const cardIndices = [0, 1, 2, 3, 4, 5];
+  const cardIndices = useMemo(() => [0, 1, 2, 3, 4, 5], []);
 
-  // Function to get row and column for grid position
-  const getGridPosition = (index: number) => {
-    // Assuming a 3-column grid (lg:grid-cols-3)
-    const row = Math.floor(index / 3);
-    const col = index % 3;
-    return { row, col };
-  };
-
-  // Calculate diagonal position (higher value = later in diagonal)
-  const getDiagonalOrder = (index: number) => {
-    const { row, col } = getGridPosition(index);
-    return row + col;
-  };
-
-  const borderColors = cardIndices.map(index => {
-    const diagonalPosition = getDiagonalOrder(index);
-    return useTransform(
-      scrollYProgress,
-      [0.2 + diagonalPosition * 0.15, 0.7 + diagonalPosition * 0.15], // Much wider gaps requiring more scrolling
-      ["#E5E7EB", "#3366FF"]
-    );
-  });
-
-  // Create icon color transforms based on the same diagonal position
-  const iconColors = cardIndices.map(index => {
-    const diagonalPosition = getDiagonalOrder(index);
-    return useTransform(
-      scrollYProgress,
-      [0.2 + diagonalPosition * 0.15, 0.7 + diagonalPosition * 0.15], // Same timing as border colors
-      ["#6B7280", "#3366FF"] // From gray-500 to blue
-    );
-  });
-
-  // Create background color transforms for icon containers
-  const iconBgColors = cardIndices.map(index => {
-    const diagonalPosition = getDiagonalOrder(index);
-    return useTransform(
-      scrollYProgress,
-      [0.2 + diagonalPosition * 0.15, 0.7 + diagonalPosition * 0.15], // Same timing as border colors
-      ["#F3F4F6", "#EBF5FF"] // From gray-100 to light blue
-    );
-  });
+  const diagonalPositions = useMemo(() => cardIndices.map(index => getDiagonalOrder(index)), [cardIndices]);
 
   // Control sticky behavior - stick until animation completes, then fade out gradually
   const stickyOpacity = useTransform(
@@ -161,19 +157,14 @@ export function Features() {
     }
   };
 
-  // For debugging the grid positions
-  const debugCardPosition = (index: number) => {
-    const { row, col } = getGridPosition(index);
-    const diagonal = getDiagonalOrder(index);
-    return `R${row}C${col} (D${diagonal})`;
-  };
-
   // Custom Card component that handles both mobile and desktop animations
   const AnimatedCard = ({ index, content, borderClasses }: {
     index: number;
     content: { title: string; description: string; icon: React.ReactNode };
     borderClasses: string;
   }) => {
+    const { borderColor, iconColor, iconBgColor } = useCardTransforms(scrollYProgress, diagonalPositions[index]);
+
     // Always create the ref regardless of mobile or desktop
     const cardRef = useRef(null);
     return (
@@ -181,14 +172,14 @@ export function Features() {
         ref={cardRef}
         key={index}
         className={`flex flex-col h-full shadow-none rounded-none ${borderClasses}`}
-        style={{ borderColor: borderColors[index] }}
+        style={{ borderColor: borderColor }}
       >
         <CardHeader className="pt-16 pb-8">
-          <motion.div 
+          <motion.div
             className="w-16 h-16 mb-8 flex items-center justify-center rounded-md"
-            style={{ 
-              backgroundColor: iconBgColors[index],
-              color: iconColors[index]
+            style={{
+              backgroundColor: iconBgColor,
+              color: iconColor
             }}
           >
             {content.icon}
@@ -241,4 +232,4 @@ export function Features() {
       </div>
     </section>
   );
-} 
+}

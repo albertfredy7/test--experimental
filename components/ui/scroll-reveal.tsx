@@ -47,13 +47,12 @@ export function ScrollReveal({
     if (!elementRef.current) return;
 
     const element = elementRef.current;
-    let observer: IntersectionObserver;
 
-    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+    const handleIntersection = (observer: IntersectionObserver) => (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           setIsInView(true);
-          if (once && observer) {
+          if (once) {
             observer.unobserve(element);
           }
         } else if (!once) {
@@ -62,17 +61,23 @@ export function ScrollReveal({
       });
     };
 
-    observer = new IntersectionObserver(handleIntersection, {
+    const observer = new IntersectionObserver(handleIntersection(new IntersectionObserver(() => {})), { // Dummy observer is replaced in next line
       threshold,
       rootMargin: "0px",
     });
 
-    observer.observe(element);
+    observer.disconnect(); // Disconnect dummy observer
+
+    const realObserver = new IntersectionObserver(handleIntersection(observer), {
+      threshold,
+      rootMargin: "0px",
+    });
+
+
+    realObserver.observe(element);
 
     return () => {
-      if (observer) {
-        observer.unobserve(element);
-      }
+        realObserver.unobserve(element);
     };
   }, [once, threshold]);
 
@@ -93,4 +98,4 @@ export function ScrollReveal({
       {children}
     </div>
   );
-} 
+}
